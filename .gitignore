@@ -1,0 +1,4 @@
+.sshmanagerhosts.yaml
+__pycache__/*
+sshmanager.egg-info/*
+venv/*
