@@ -70,8 +70,8 @@ def add(hostname, ip_address, type):
 
 
 @click.command(
-    help='Used to delete a host from sshm. Requires argument "key" which can be found using the "sshm show" command'
-)
+    help='Used to delete a host from sshm'
+    )
 @click.argument("key")
 def delete(key):
     table = Table(title="Deleted")
@@ -86,7 +86,7 @@ def delete(key):
     console.print(table)
 
 
-@click.command()
+@click.command(help="show all hosts, view can be filtered with various options")
 @click.option(
     "--hostname",
     "-h",
@@ -127,7 +127,7 @@ def types():
 
 
 @click.command(
-    help='Used to connect to host using the systems "ssh" command. Requires argument "key" which can be found using the "sshm show" command'
+    help='Used to connect to host using the systems "ssh" command'
 )
 @click.argument("key")
 def connect(key):
