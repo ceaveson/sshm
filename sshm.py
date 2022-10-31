@@ -34,26 +34,6 @@ def update_sshmhosts(hosts, hosts_file):
 def cli():
     pass
 
-'''
-@click.command()
-def add():
-    hosts = create_hosts_dict()
-    hostname = click.prompt("Hostname")
-    IP = click.prompt("IP Address")
-    click.echo(f"Hostname: {hostname}")
-    click.echo(f"IP Address: {IP}")
-    confirm = f"""Are these details correct?
-    Hostname {hostname}
-    IP Address {IP}
-    """
-    if click.confirm(confirm):
-        host = {"hostname": hostname, "IP": IP, "key": None}
-        hosts.append(host)
-        update_sshmhosts(hosts)
-        click.echo("added")
-    else:
-        click.echo("not added")
-'''
 
 @click.command()
 @click.option('--hostname','-h', required=True)
