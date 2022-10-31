@@ -6,6 +6,8 @@ from yaml.loader import SafeLoader
 import os
 from rich.console import Console
 from rich.table import Table
+from ipaddress import IPv4Address, AddressValueError
+import sys
 
 SSMHOSTS = ".sshmhosts.yaml"
 
@@ -57,19 +59,36 @@ def add():
 @click.option('--hostname','-h', required=True)
 @click.option('--ip_address','-ip', required=True)
 def add(hostname, ip_address):
+    try:
+        IPv4Address(ip_address)
+    except AddressValueError:
+        click.echo('Invalid IPv4 Address')
+        sys.exit()
+    table = Table(title="Added")
+    table.add_column("Hostname", style="magenta")
+    table.add_column("IP", justify="right", style="green")
     hosts = create_hosts_dict(SSMHOSTS)
     host = {"hostname": hostname, "IP": ip_address, "key": None}
     hosts.append(host)
     update_sshmhosts(hosts, SSMHOSTS)
+    table.add_row(host['hostname'],host['IP'])
+    console = Console()
+    console.print(table)
     click.echo("added")
 
 @click.command()
 @click.argument("key")
 def delete(key):
+    table = Table(title="Deleted")
+    table.add_column("Hostname", style="magenta")
+    table.add_column("IP", justify="right", style="green")
     hosts = create_hosts_dict(SSMHOSTS)
+    host = [i for i in hosts if (i["key"] == int(key))][0]
     hosts = [i for i in hosts if not (i["key"] == int(key))]
     update_sshmhosts(hosts, SSMHOSTS)
-    click.echo(f"removed {key}")
+    table.add_row(host['hostname'],host['IP'])
+    console = Console()
+    console.print(table)
 
 
 @click.command()
