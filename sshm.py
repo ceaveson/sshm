@@ -11,7 +11,7 @@ import sys
 
 SSMHOSTS = ".sshmhosts.yaml"
 
-#TODO add help doc to each command and option
+#TODO add comments to explain how the script works
 #TODO add netbox integration
 #TODO add ssh session logging
 
@@ -40,10 +40,10 @@ def cli():
     pass
 
 
-@click.command()
-@click.option("--hostname", "-h", required=True)
-@click.option("--ip_address", "-ip", required=True)
-@click.option("--type", "-t", required=True)
+@click.command(help = "Used to add a new host to sshm")
+@click.option("--hostname", "-h", required=True, help = "descriptive name of host")
+@click.option("--ip_address", "-ip", required=True, help = "ip address used to connect to host")
+@click.option("--type", "-t", required=True, help="A generic type used to help organise hosts")
 def add(hostname, ip_address, type):
     try:
         IPv4Address(ip_address)
@@ -64,7 +64,7 @@ def add(hostname, ip_address, type):
     click.echo("added")
 
 
-@click.command()
+@click.command(help="Used to delete a host from sshm. Requires argument \"key\" which can be found using the \"sshm show\" command")
 @click.argument("key")
 def delete(key):
     table = Table(title="Deleted")
@@ -80,8 +80,8 @@ def delete(key):
 
 
 @click.command()
-@click.option("--hostname", "-h")
-@click.option("--type", "-t")
+@click.option("--hostname", "-h", help = "Used to filter result by hostname. Can be full or just a part of hostname")
+@click.option("--type", "-t", help = "Used to filter result by type. Can be full or just a part of type")
 def show(hostname:str, type:str):
     table = Table(title="hosts")
     table.add_column("Key", justify="right", style="cyan", no_wrap=True)
@@ -99,7 +99,7 @@ def show(hostname:str, type:str):
     console.print(table)
 
 
-@click.command()
+@click.command(help="shows all types used in existing hosts list")
 def types():
     hosts = create_hosts_dict(SSMHOSTS)
     types = set([i["type"] for i in hosts])
@@ -112,7 +112,7 @@ def types():
 
 
 
-@click.command()
+@click.command(help="Used to connect to host using the systems \"ssh\" command. Requires argument \"key\" which can be found using the \"sshm show\" command")
 @click.argument("key")
 def connect(key):
     hosts = create_hosts_dict(SSMHOSTS)
