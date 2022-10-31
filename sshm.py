@@ -7,11 +7,12 @@ import os
 from rich.console import Console
 from rich.table import Table
 
+SSMHOSTS = ".sshmhosts.yaml"
 
-def create_hosts_dict():
+def create_hosts_dict(hosts_file):
     hosts = []
     try:
-        with open(".sshmhosts.yaml", "r") as f:
+        with open(hosts_file, "r") as f:
             hosts = list(yaml.load_all(f, Loader=SafeLoader))
             for key, host in enumerate(hosts):
                 host["key"] = key
@@ -20,10 +21,10 @@ def create_hosts_dict():
         return hosts
 
 
-def update_sshmhosts(hosts):
+def update_sshmhosts(hosts, hosts_file):
     for host in hosts:
         del host["key"]
-    with open(".sshmhosts.yaml", "w") as f:
+    with open(hosts_file, "w") as f:
         f.write(yaml.dump_all(hosts))
 
 
@@ -31,7 +32,7 @@ def update_sshmhosts(hosts):
 def cli():
     pass
 
-
+'''
 @click.command()
 def add():
     hosts = create_hosts_dict()
@@ -50,14 +51,24 @@ def add():
         click.echo("added")
     else:
         click.echo("not added")
+'''
 
+@click.command()
+@click.option('--hostname','-h', required=True)
+@click.option('--ip_address','-ip', required=True)
+def add(hostname, ip_address):
+    hosts = create_hosts_dict(SSMHOSTS)
+    host = {"hostname": hostname, "IP": ip_address, "key": None}
+    hosts.append(host)
+    update_sshmhosts(hosts, SSMHOSTS)
+    click.echo("added")
 
 @click.command()
 @click.argument("key")
 def delete(key):
-    hosts = create_hosts_dict()
+    hosts = create_hosts_dict(SSMHOSTS)
     hosts = [i for i in hosts if not (i["key"] == int(key))]
-    update_sshmhosts(hosts)
+    update_sshmhosts(hosts, SSMHOSTS)
     click.echo(f"removed {key}")
 
 
@@ -67,20 +78,16 @@ def show():
     table.add_column('Key', justify="right", style="cyan", no_wrap=True)
     table.add_column("Hostname", style="magenta")
     table.add_column("IP", justify="right", style="green")
-    hosts = create_hosts_dict()
+    hosts = create_hosts_dict(SSMHOSTS)
     for host in hosts:
         table.add_row(str(host["key"]), host["hostname"], host["IP"])
     console = Console()
     console.print(table)
 
-"""    for host in hosts:
-        table.add_row(host['key'], host['hostname'], host['IP'])
-"""
-
 @click.command()
 @click.argument("key")
 def connect(key):
-    hosts = create_hosts_dict()
+    hosts = create_hosts_dict(SSMHOSTS)
     for host in hosts:
         if host["key"] == int(key):
             os.system(f"ssh {host['IP']}")

@@ -3,3 +3,4 @@ __pycache__/*
 sshmanager.egg-info/*
 venv/*
 sshm.egg-info*
+.vscode/
