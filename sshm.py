@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import yaml
 import click
 from yaml.loader import SafeLoader
@@ -8,14 +6,14 @@ from rich.console import Console
 from rich.table import Table
 from ipaddress import IPv4Address, AddressValueError
 import sys
+from appdirs import user_config_dir, user_data_dir
 
 SSMHOSTS = ".sshmhosts.yaml"
 
 # TODO add comments to explain how the script works
 # TODO add netbox integration
 # TODO add ssh session logging
-# TODO add light and dark mode
-# TODO add config file dirs for each platform
+
 
 
 def create_hosts_dict(hosts_file):
@@ -114,6 +112,8 @@ def show(hostname: str, type: str):
         table.add_row(str(host["key"]), host["hostname"], host["IP"], host["type"])
     console = Console()
     console.print(table)
+    click.echo(user_config_dir("sshm"))
+    click.echo(user_data_dir("sshm"))
 
 
 @click.command(help="shows all types used in existing hosts list")

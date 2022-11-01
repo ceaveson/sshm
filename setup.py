@@ -20,6 +20,7 @@ setup(
         "PyYAML",
         "rich",
         "tomli",
+        "appdirs",
 
     ],
     entry_points={
