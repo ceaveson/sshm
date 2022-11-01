@@ -7,7 +7,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "attrs",
-        "click",
+        "Click",
         "commonmark",
         "exceptiongroup",
         "iniconfig",
