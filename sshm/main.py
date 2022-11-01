@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import yaml
-import click
+import Click as click
 from yaml.loader import SafeLoader
 import os
 from rich.console import Console
@@ -14,6 +14,7 @@ SSMHOSTS = ".sshmhosts.yaml"
 # TODO add comments to explain how the script works
 # TODO add netbox integration
 # TODO add ssh session logging
+# TODO change dark blue in tables to another colour
 
 
 def create_hosts_dict(hosts_file):
