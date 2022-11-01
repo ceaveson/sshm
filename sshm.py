@@ -14,6 +14,8 @@ SSMHOSTS = ".sshmhosts.yaml"
 # TODO add comments to explain how the script works
 # TODO add netbox integration
 # TODO add ssh session logging
+# TODO add light and dark mode
+# TODO add config file dirs for each platform
 
 
 def create_hosts_dict(hosts_file):
