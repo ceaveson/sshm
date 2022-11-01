@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import yaml
-import Click as click
+import click
 from yaml.loader import SafeLoader
 import os
 from rich.console import Console
