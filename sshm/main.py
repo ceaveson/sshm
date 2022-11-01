@@ -14,7 +14,6 @@ SSMHOSTS = ".sshmhosts.yaml"
 # TODO add comments to explain how the script works
 # TODO add netbox integration
 # TODO add ssh session logging
-# TODO change dark blue in tables to another colour
 
 
 def create_hosts_dict(hosts_file):
@@ -59,7 +58,7 @@ def add(hostname, ip_address, type):
     table = Table(title="Added")
     table.add_column("Hostname", style="magenta")
     table.add_column("IP", justify="right", style="green")
-    table.add_column("Type", justify="right", style="blue")
+    table.add_column("Type", justify="right", style="cyan")
     hosts = create_hosts_dict(SSMHOSTS)
     host = {"hostname": hostname, "IP": ip_address, "type": type, "key": None}
     hosts.append(host)
@@ -103,7 +102,7 @@ def show(hostname: str, type: str):
     table.add_column("Key", justify="right", style="cyan", no_wrap=True)
     table.add_column("Hostname", style="magenta")
     table.add_column("IP", justify="right", style="green")
-    table.add_column("Type", justify="right", style="blue")
+    table.add_column("Type", justify="right", style="cyan")
     hosts = create_hosts_dict(SSMHOSTS)
     if hostname:
         hosts = [i for i in hosts if hostname in i["hostname"]]
