@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import yaml
 import click
 from yaml.loader import SafeLoader
