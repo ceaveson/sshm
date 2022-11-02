@@ -9,13 +9,49 @@ from rich.table import Table
 from ipaddress import IPv4Address, AddressValueError
 import sys
 from appdirs import user_config_dir, user_data_dir
+import tomli
 
-SSMHOSTS = ".sshmhosts.yaml"
+DEFAULT_SSHMCONFIG = """
+#############################################################################
+#                            sshm config                                    #
+#############################################################################
+# config file for variables that can be modified by the user
+# uncomment any variables you want to change
+
+
+# Normally the system username is the login name used for SSH connections
+# LOGIN_NAME allows you to change the default login name to something else 
+
+#LOGIN_NAME = "username"
+
+
+# sshm checks what OS it is being ran on and stores the sshmhosts file in
+# a reasonable place for that OS. If you want this stored somewhere else 
+# then SSHMHOSTS will overwrite where it is stored. 
+
+#SSHMHOSTS = "~/sshmhosts.yaml"
+"""
+
+SSHMCONFIG = os.path.join(user_config_dir(), "sshmconfig.toml")
+
+if not os.path.exists(SSHMCONFIG):
+    with open(SSHMCONFIG, "w") as f:
+        f.write(DEFAULT_SSHMCONFIG)
+
+with open(SSHMCONFIG, "rb") as f:
+    config_dict = tomli.load(f)
+try:
+    LOGIN_NAME = config_dict["LOGIN_NAME"]
+except:
+    LOGIN_NAME = None
+try:
+    SSHMHOSTS = config_dict["SSHMHOSTS"]
+except:
+    SSHMHOSTS = os.path.join(user_data_dir(), "sshmhosts.yaml")
+
 
 # TODO add comments to explain how the script works
 # TODO add netbox integration
-# TODO add ssh session logging
-
 
 
 def create_hosts_dict(hosts_file):
@@ -61,28 +97,26 @@ def add(hostname, ip_address, type):
     table.add_column("Hostname", style="magenta")
     table.add_column("IP", justify="right", style="green")
     table.add_column("Type", justify="right", style="cyan")
-    hosts = create_hosts_dict(SSMHOSTS)
+    hosts = create_hosts_dict(SSHMHOSTS)
     host = {"hostname": hostname, "IP": ip_address, "type": type, "key": None}
     hosts.append(host)
-    update_sshmhosts(hosts, SSMHOSTS)
+    update_sshmhosts(hosts, SSHMHOSTS)
     table.add_row(host["hostname"], host["IP"], host["type"])
     console = Console()
     console.print(table)
     click.echo("added")
 
 
-@click.command(
-    help='Used to delete a host from sshm'
-    )
+@click.command(help="Used to delete a host from sshm")
 @click.argument("key")
 def delete(key):
     table = Table(title="Deleted")
     table.add_column("Hostname", style="magenta")
     table.add_column("IP", justify="right", style="green")
-    hosts = create_hosts_dict(SSMHOSTS)
+    hosts = create_hosts_dict(SSHMHOSTS)
     host = [i for i in hosts if (i["key"] == int(key))][0]
     hosts = [i for i in hosts if not (i["key"] == int(key))]
-    update_sshmhosts(hosts, SSMHOSTS)
+    update_sshmhosts(hosts, SSHMHOSTS)
     table.add_row(host["hostname"], host["IP"])
     console = Console()
     console.print(table)
@@ -105,7 +139,7 @@ def show(hostname: str, type: str):
     table.add_column("Hostname", style="magenta")
     table.add_column("IP", justify="right", style="green")
     table.add_column("Type", justify="right", style="cyan")
-    hosts = create_hosts_dict(SSMHOSTS)
+    hosts = create_hosts_dict(SSHMHOSTS)
     if hostname:
         hosts = [i for i in hosts if hostname.lower() in i["hostname"].lower()]
     if type:
@@ -114,13 +148,13 @@ def show(hostname: str, type: str):
         table.add_row(str(host["key"]), host["hostname"], host["IP"], host["type"])
     console = Console()
     console.print(table)
-    click.echo(user_config_dir("sshm"))
-    click.echo(user_data_dir("sshm"))
+    click.echo(SSHMHOSTS)
+    click.echo(SSHMCONFIG)
 
 
 @click.command(help="shows all types used in existing hosts list")
 def types():
-    hosts = create_hosts_dict(SSMHOSTS)
+    hosts = create_hosts_dict(SSHMHOSTS)
     types = set([i["type"] for i in hosts])
     table = Table()
     table.add_column("Types", justify="left", style="cyan", no_wrap=True)
@@ -130,20 +164,36 @@ def types():
     console.print(table)
 
 
-@click.command(
-    help='Used to connect to host using the systems "ssh" command'
-)
-
+@click.command(help='Used to connect to host using the systems "ssh" command')
 @click.option("-l", "--login_name")
 @click.argument("key")
 def connect(key, login_name):
-    hosts = create_hosts_dict(SSMHOSTS)
+    hosts = create_hosts_dict(SSHMHOSTS)
     for host in hosts:
         if host["key"] == int(key):
             if login_name:
                 os.system(f"ssh {login_name}@{host['IP']}")
+            elif LOGIN_NAME:
+                os.system(f"ssh {LOGIN_NAME}@{host['IP']}")
             else:
                 os.system(f"ssh {host['IP']}")
+
+
+@click.command(help="Shows config variables. They can all be changed in SSHMCONFIG with the exception of SSHMCONFIG itself")
+def config():
+    table = Table()
+    table.add_column("Key", justify="right", style="cyan", no_wrap=True)
+    table.add_column("value", style="magenta")
+    if LOGIN_NAME:
+        table.add_row("LOGIN_NAME", LOGIN_NAME)
+    else:
+        table.add_row(
+            "LOGIN_NAME", "No LOGIN_NAME in SSHMCONFIG, system username will be used."
+        )
+    table.add_row("SSHMHOSTS", SSHMHOSTS)
+    table.add_row("SSHMCONFIG", SSHMCONFIG)
+    console = Console()
+    console.print(table)
 
 
 cli.add_command(add)
@@ -151,6 +201,7 @@ cli.add_command(delete)
 cli.add_command(show)
 cli.add_command(connect)
 cli.add_command(types)
+cli.add_command(config)
 
 if __name__ == "__main__":
     cli()
