@@ -148,8 +148,6 @@ def show(hostname: str, type: str):
         table.add_row(str(host["key"]), host["hostname"], host["IP"], host["type"])
     console = Console()
     console.print(table)
-    click.echo(SSHMHOSTS)
-    click.echo(SSHMCONFIG)
 
 
 @click.command(help="shows all types used in existing hosts list")
