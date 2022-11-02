@@ -105,9 +105,9 @@ def show(hostname: str, type: str):
     table.add_column("Type", justify="right", style="cyan")
     hosts = create_hosts_dict(SSMHOSTS)
     if hostname:
-        hosts = [i for i in hosts if hostname in i["hostname"]]
+        hosts = [i for i in hosts if hostname.lower() in i["hostname"].lower())]
     if type:
-        hosts = [i for i in hosts if type in i["type"]]
+        hosts = [i for i in hosts if type.lower() in i["type"].lower()]
     for host in hosts:
         table.add_row(str(host["key"]), host["hostname"], host["IP"], host["type"])
     console = Console()
