@@ -131,12 +131,17 @@ def types():
 @click.command(
     help='Used to connect to host using the systems "ssh" command'
 )
+
+@click.option("-l", "--login_name")
 @click.argument("key")
-def connect(key):
+def connect(key, login_name):
     hosts = create_hosts_dict(SSMHOSTS)
     for host in hosts:
         if host["key"] == int(key):
-            os.system(f"ssh {host['IP']}")
+            if login_name:
+                os.system(f"ssh {login_name}@{host['IP']}")
+            else:
+                os.system(f"ssh {host['IP']}")
 
 
 cli.add_command(add)
