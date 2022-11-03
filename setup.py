@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sshm',
-    version='0.1.10',
+    version='0.1.11',
     install_requires=[
         "attrs",
         "click",
@@ -21,6 +21,7 @@ setup(
         "rich",
         "tomli",
         "appdirs",
+        "pynetbox",
 
     ],
     entry_points={
