@@ -35,11 +35,11 @@ DEFAULT_SSHMCONFIG = """
 
 # If you have Netbox then this script can sync the hosts from there which have a primary IP.
 
-#NETBOX_URL = https://netbox.example.com
-#NETBOX_TOKEN = an_example_token
+#NETBOX_URL = "https://netbox.example.com"
+#NETBOX_TOKEN = "an_example_token"
 
 # May be required if using self signed cert
-#HTTP_SESSION_VERIFY = False
+#HTTP_SESSION_VERIFY = false
 """
 
 SSHMCONFIG = os.path.join(user_config_dir(), "sshmconfig.toml")
@@ -229,16 +229,28 @@ def connect(key, login_name):
 )
 def config():
     table = Table()
-    table.add_column("Key", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Key", justify="left", style="cyan", no_wrap=True)
     table.add_column("value", style="magenta")
     if LOGIN_NAME:
         table.add_row("LOGIN_NAME", LOGIN_NAME)
     else:
         table.add_row(
-            "LOGIN_NAME", "No LOGIN_NAME in SSHMCONFIG, system username will be used."
+            "LOGIN_NAME", "Not configured"
         )
     table.add_row("SSHMHOSTS", SSHMHOSTS)
     table.add_row("SSHMCONFIG", SSHMCONFIG)
+    if NETBOX_URL:
+        table.add_row("NETBOX_URL", NETBOX_URL)
+    else:
+        table.add_row("NETBOX_URL", "Not configured")
+    if NETBOX_TOKEN:
+        table.add_row("NETBOX_TOKEN", NETBOX_TOKEN)
+    else:
+        table.add_row("NETBOX_TOKEN", "Not configured")
+    if HTTP_SESSION_VERIFY != None:
+        table.add_row("HTTP_SESSION_VERIFY", str(HTTP_SESSION_VERIFY))
+    else:
+        table.add_row("HTTP_SESSION_VERIFY", "Not Configured")
     console = Console()
     console.print(table)
 
