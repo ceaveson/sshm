@@ -62,30 +62,22 @@ if not os.path.exists(SSHMCONFIG):
 
 with open(SSHMCONFIG, "rb") as f:
     config_dict = tomli.load(f)
-try:
-    LOGIN_NAME = config_dict["LOGIN_NAME"]
-except:
-    LOGIN_NAME = None
-try:
-    SSHMHOSTS = config_dict["SSHMHOSTS"]
-except:
+
+LOGIN_NAME = config_dict.get("LOGIN_NAME")
+SSHMHOSTS = config_dict.get("SSHMHOSTS")
+if not SSHMHOSTS:
     SSHMHOSTS = os.path.join(user_data_dir(), "sshmhosts.yaml")
-try:
-    NETBOX_URL = config_dict["NETBOX_URL"]
-except:
-    NETBOX_URL = None
-try:
-    NETBOX_TOKEN = config_dict["NETBOX_TOKEN"]
-except:
-    NETBOX_TOKEN = None
-try:
-    HTTP_SESSION_VERIFY = config_dict["HTTP_SESSION_VERIFY"]
-except:
-    HTTP_SESSION_VERIFY = None
-try:
-    THEME = config_dict["THEME"]
-except:
-    THEME = {"TABLE": "white","HEADER": "white","COLOUR1": "white", "COLOUR2": "white"}
+NETBOX_URL = config_dict.get("NETBOX_URL")
+NETBOX_TOKEN = config_dict.get("NETBOX_TOKEN")
+HTTP_SESSION_VERIFY = config_dict.get("HTTP_SESSION_VERIFY")
+THEME = config_dict.get("THEME")
+if not THEME:
+    THEME = {
+        "TABLE": "white",
+        "HEADER": "white",
+        "COLOUR1": "white",
+        "COLOUR2": "white",
+    }
 
 # TODO add comments to explain how the script works
 
@@ -134,8 +126,15 @@ def add(hostname, ip_address, manufacturer):
         sys.exit()
     table = Table(title="Added", style=THEME["TABLE"])
     table.add_column("Hostname", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
-    table.add_column("IP", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
-    table.add_column("manufacturer", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
+    table.add_column(
+        "IP", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"]
+    )
+    table.add_column(
+        "manufacturer",
+        justify="right",
+        style=THEME["COLOUR1"],
+        header_style=THEME["HEADER"],
+    )
     hosts = create_hosts_dict(SSHMHOSTS)
     host = {
         "hostname": hostname,
@@ -157,8 +156,12 @@ def add(hostname, ip_address, manufacturer):
 def delete(key):
     try:
         table = Table(title="Deleted", style=THEME["TABLE"])
-        table.add_column("Hostname", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
-        table.add_column("IP", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
+        table.add_column(
+            "Hostname", style=THEME["COLOUR1"], header_style=THEME["HEADER"]
+        )
+        table.add_column(
+            "IP", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"]
+        )
         hosts = create_hosts_dict(SSHMHOSTS)
         host = [i for i in hosts if (i["key"] == int(key))][0]
         hosts = [i for i in hosts if not (i["key"] == int(key))]
@@ -188,11 +191,26 @@ def delete(key):
 )
 def show(hostname: str, manufacturer: str, source: str):
     table = Table(title="hosts", style=THEME["TABLE"])
-    table.add_column("Key", justify="right", style=THEME["COLOUR1"], no_wrap=True, header_style=THEME["HEADER"])
+    table.add_column(
+        "Key",
+        justify="right",
+        style=THEME["COLOUR1"],
+        no_wrap=True,
+        header_style=THEME["HEADER"],
+    )
     table.add_column("Hostname", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
-    table.add_column("IP", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
-    table.add_column("manufacturer", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
-    table.add_column("source", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
+    table.add_column(
+        "IP", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"]
+    )
+    table.add_column(
+        "manufacturer",
+        justify="right",
+        style=THEME["COLOUR2"],
+        header_style=THEME["HEADER"],
+    )
+    table.add_column(
+        "source", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"]
+    )
     hosts = create_hosts_dict(SSHMHOSTS)
     if hostname:
         hosts = [i for i in hosts if hostname.lower() in i["hostname"].lower()]
@@ -216,8 +234,14 @@ def show(hostname: str, manufacturer: str, source: str):
 def manufacturers():
     hosts = create_hosts_dict(SSHMHOSTS)
     manufacturers = set([i["manufacturer"] for i in hosts])
-    table = Table( style=THEME["TABLE"])
-    table.add_column("manufacturers", justify="left", style=THEME["COLOUR1"], no_wrap=True, header_style=THEME["HEADER"])
+    table = Table(style=THEME["TABLE"])
+    table.add_column(
+        "manufacturers",
+        justify="left",
+        style=THEME["COLOUR1"],
+        no_wrap=True,
+        header_style=THEME["HEADER"],
+    )
     for manufacturer in manufacturers:
         table.add_row(manufacturer)
     console = Console()
@@ -244,14 +268,18 @@ def connect(key, login_name):
 )
 def config():
     table = Table(style=THEME["TABLE"])
-    table.add_column("Key", justify="left", style=THEME["COLOUR1"], header_style=THEME["HEADER"], no_wrap=True)
+    table.add_column(
+        "Key",
+        justify="left",
+        style=THEME["COLOUR1"],
+        header_style=THEME["HEADER"],
+        no_wrap=True,
+    )
     table.add_column("value", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
     if LOGIN_NAME:
         table.add_row("LOGIN_NAME", LOGIN_NAME)
     else:
-        table.add_row(
-            "LOGIN_NAME", "Not configured"
-        )
+        table.add_row("LOGIN_NAME", "Not configured")
     table.add_row("SSHMHOSTS", SSHMHOSTS)
     table.add_row("SSHMCONFIG", SSHMCONFIG)
     if NETBOX_URL:
@@ -266,7 +294,11 @@ def config():
         table.add_row("HTTP_SESSION_VERIFY", str(HTTP_SESSION_VERIFY))
     else:
         table.add_row("HTTP_SESSION_VERIFY", "Not Configured")
-    table.add_row("THEME", f"COLOUR1 = {THEME['COLOUR1']}, COLOUR2 = {THEME['COLOUR2']}")
+    table.add_row(
+        "THEME",
+        f"TABLE = {THEME.get('TABLE')}, HEADER = {THEME.get('HEADER')}, \
+COLOUR1 = {THEME['COLOUR1']}, COLOUR2 = {THEME['COLOUR2']}",
+    )
     console = Console()
     console.print(table)
 
