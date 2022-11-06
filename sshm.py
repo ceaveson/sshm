@@ -48,8 +48,8 @@ DEFAULT_SSHMCONFIG = """
 
 [THEME]
 TABLE = "cyan"
-HEADER = "magenta" 
-COLOUR1 = "blue"
+HEADER = "white" 
+COLOUR1 = "magenta"
 COLOUR2 = "green"
 
 """
