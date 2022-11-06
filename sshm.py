@@ -33,13 +33,25 @@ DEFAULT_SSHMCONFIG = """
 #SSHMHOSTS = "~/sshmhosts.yaml"
 
 
-# If you have Netbox then this script can sync the hosts from there which have a primary IP.
+# If you have Netbox then this script can sync the devices from there which have a primary IP.
 
 #NETBOX_URL = "https://netbox.example.com"
 #NETBOX_TOKEN = "an_example_token"
 
 # May be required if using self signed cert
 #HTTP_SESSION_VERIFY = false
+
+# Themes are used for tables and made of 3 colours which can be a mix of the following. If
+# there is no theme set then it will default to all white:
+# black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green,
+# bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white
+
+[THEME]
+TABLE = "cyan"
+HEADER = "magenta" 
+COLOUR1 = "blue"
+COLOUR2 = "green"
+
 """
 
 SSHMCONFIG = os.path.join(user_config_dir(), "sshmconfig.toml")
@@ -70,7 +82,10 @@ try:
     HTTP_SESSION_VERIFY = config_dict["HTTP_SESSION_VERIFY"]
 except:
     HTTP_SESSION_VERIFY = None
-
+try:
+    THEME = config_dict["THEME"]
+except:
+    THEME = {"TABLE": "white","HEADER": "white","COLOUR1": "white", "COLOUR2": "white"}
 
 # TODO add comments to explain how the script works
 
@@ -117,10 +132,10 @@ def add(hostname, ip_address, manufacturer):
     except AddressValueError:
         click.echo("Invalid IPv4 Address")
         sys.exit()
-    table = Table(title="Added")
-    table.add_column("Hostname", style="magenta")
-    table.add_column("IP", justify="right", style="green")
-    table.add_column("manufacturer", justify="right", style="cyan")
+    table = Table(title="Added", style=THEME["TABLE"])
+    table.add_column("Hostname", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
+    table.add_column("IP", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
+    table.add_column("manufacturer", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
     hosts = create_hosts_dict(SSHMHOSTS)
     host = {
         "hostname": hostname,
@@ -141,9 +156,9 @@ def add(hostname, ip_address, manufacturer):
 @click.argument("key")
 def delete(key):
     try:
-        table = Table(title="Deleted")
-        table.add_column("Hostname", style="magenta")
-        table.add_column("IP", justify="right", style="green")
+        table = Table(title="Deleted", style=THEME["TABLE"])
+        table.add_column("Hostname", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
+        table.add_column("IP", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
         hosts = create_hosts_dict(SSHMHOSTS)
         host = [i for i in hosts if (i["key"] == int(key))][0]
         hosts = [i for i in hosts if not (i["key"] == int(key))]
@@ -172,12 +187,12 @@ def delete(key):
     help="Used to filter result by source (either local or netbox)",
 )
 def show(hostname: str, manufacturer: str, source: str):
-    table = Table(title="hosts")
-    table.add_column("Key", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Hostname", style="magenta")
-    table.add_column("IP", justify="right", style="green")
-    table.add_column("manufacturer", justify="right", style="cyan")
-    table.add_column("source", justify="right", style="magenta")
+    table = Table(title="hosts", style=THEME["TABLE"])
+    table.add_column("Key", justify="right", style=THEME["COLOUR1"], no_wrap=True, header_style=THEME["HEADER"])
+    table.add_column("Hostname", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
+    table.add_column("IP", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
+    table.add_column("manufacturer", justify="right", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
+    table.add_column("source", justify="right", style=THEME["COLOUR1"], header_style=THEME["HEADER"])
     hosts = create_hosts_dict(SSHMHOSTS)
     if hostname:
         hosts = [i for i in hosts if hostname.lower() in i["hostname"].lower()]
@@ -201,8 +216,8 @@ def show(hostname: str, manufacturer: str, source: str):
 def manufacturers():
     hosts = create_hosts_dict(SSHMHOSTS)
     manufacturers = set([i["manufacturer"] for i in hosts])
-    table = Table()
-    table.add_column("manufacturers", justify="left", style="cyan", no_wrap=True)
+    table = Table( style=THEME["TABLE"])
+    table.add_column("manufacturers", justify="left", style=THEME["COLOUR1"], no_wrap=True, header_style=THEME["HEADER"])
     for manufacturer in manufacturers:
         table.add_row(manufacturer)
     console = Console()
@@ -228,9 +243,9 @@ def connect(key, login_name):
     help="Shows config variables. They can all be changed in SSHMCONFIG with the exception of SSHMCONFIG itself"
 )
 def config():
-    table = Table()
-    table.add_column("Key", justify="left", style="cyan", no_wrap=True)
-    table.add_column("value", style="magenta")
+    table = Table(style=THEME["TABLE"])
+    table.add_column("Key", justify="left", style=THEME["COLOUR1"], header_style=THEME["HEADER"], no_wrap=True)
+    table.add_column("value", style=THEME["COLOUR2"], header_style=THEME["HEADER"])
     if LOGIN_NAME:
         table.add_row("LOGIN_NAME", LOGIN_NAME)
     else:
@@ -251,6 +266,7 @@ def config():
         table.add_row("HTTP_SESSION_VERIFY", str(HTTP_SESSION_VERIFY))
     else:
         table.add_row("HTTP_SESSION_VERIFY", "Not Configured")
+    table.add_row("THEME", f"COLOUR1 = {THEME['COLOUR1']}, COLOUR2 = {THEME['COLOUR2']}")
     console = Console()
     console.print(table)
 
