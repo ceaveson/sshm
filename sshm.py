@@ -38,7 +38,7 @@ DEFAULT_SSHMCONFIG = """
 #NETBOX_URL = "https://netbox.example.com"
 #NETBOX_TOKEN = "an_example_token"
 
-# May be required if using self signed cert
+# May be required if using a self signed certificate on Netbox
 #HTTP_SESSION_VERIFY = false
 
 # Themes are used for tables and made of 3 colours which can be a mix of the following. If
