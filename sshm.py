@@ -80,6 +80,8 @@ if not THEME:
     }
 
 # TODO add comments to explain how the script works
+# TODO add auto complete
+# TODO add table footers with lines received
 
 
 def create_hosts_dict(hosts_file):
